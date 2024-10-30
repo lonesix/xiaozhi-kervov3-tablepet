@@ -38,7 +38,15 @@ elseif(CONFIG_BOARD_TYPE_KEVIN_BOX_0)
     list(APPEND SOURCES ${BOARD_SOURCES} "Ml307Board.cc")
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_TYPE})
     list(APPEND SOURCES "BoxAudioDevice.cc")
+    elseif(CONFIG_BOARD_TYPE_QJG_KEVIN)
+    # add all files from boards/kevin-box-0
+    set(BOARD_TYPE "QJG-kevin-wifi")
+    file(GLOB BOARD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_TYPE}/*.cc)
+    list(APPEND SOURCES ${BOARD_SOURCES} "WifiBoard.cc")
+    list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_TYPE})
+    list(APPEND SOURCES "BoxAudioDevice.cc")    
 endif()
+
 
 if(CONFIG_USE_AFE_SR)
     list(APPEND SOURCES "AudioProcessor.cc" "WakeWordDetect.cc")

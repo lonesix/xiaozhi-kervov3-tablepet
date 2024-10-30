@@ -31,6 +31,8 @@ choice BOARD_TYPE
         bool "ESP BOX 3"
     config BOARD_TYPE_KEVIN_BOX_0
         bool "Kevin Box 0"
+    config BOARD_TYPE_QJG_KEVIN
+        bool "QJG-kevin-wifi"
 endchoice
 
 config USE_AFE_SR

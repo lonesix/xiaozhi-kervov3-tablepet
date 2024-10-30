@@ -16,6 +16,7 @@
 
 
 Application::Application()
+        // : boot_button_((gpio_num_t)BOOT_BUTTON_GPIO)
     : boot_button_((gpio_num_t)BOOT_BUTTON_GPIO),
       volume_up_button_((gpio_num_t)VOLUME_UP_BUTTON_GPIO),
       volume_down_button_((gpio_num_t)VOLUME_DOWN_BUTTON_GPIO),
