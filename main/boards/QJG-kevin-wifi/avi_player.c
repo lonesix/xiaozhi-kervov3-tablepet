@@ -419,6 +419,10 @@ void Avi_Player_Task(void *arg)
     //             IN_play("/sdcard/badapple.avi", FACE_STATIC);
     while (1)
     {
+        vTaskDelay(0xffffff);
+    }
+    while (1)
+    {
         ESP_LOGE(TAG, "out_play_state :%d in_play_state:%d", out_play_state, in_play_state);
 
         switch (out_play_state)

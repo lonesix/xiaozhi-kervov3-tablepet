@@ -30,7 +30,11 @@ static int search_fourcc(uint32_t fourcc, const uint8_t *buffer, uint32_t length
     }
     return -1;
 }
-
+uint8_t FrameRate = 0; //帧率
+uint8_t get_fps_avifle(void)
+{
+    return FrameRate;
+}
 static int Strl_Parser(const uint8_t *buffer, uint32_t length, uint32_t *list_length)
 {
     /**
@@ -97,6 +101,7 @@ static int Strl_Parser(const uint8_t *buffer, uint32_t length, uint32_t *list_le
         printf("重要颜色:%d\r\n\n", strf->imp_colors);
 #endif
         AVI_file.vids_fps = strh->rate / strh->scale;
+        FrameRate = AVI_file.vids_fps;
         AVI_file.vids_width = strf->width;
         AVI_file.vids_height = strf->height;
         pdata += sizeof(AVI_VIDS_STRF_CHUNK);

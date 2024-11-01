@@ -138,6 +138,6 @@ typedef struct
 
 
 int AVI_Parser(const uint8_t *buffer, uint32_t length);
-
+uint8_t get_fps_avifle(void);
 #endif
 

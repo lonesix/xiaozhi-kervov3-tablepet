@@ -173,8 +173,8 @@ void st7789_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_m
     offsety2 += 80;
 #endif
 #endif
-    offsetx1 += 20;
-    offsetx2 += 20;
+    // offsetx1 += 20;
+    // offsetx2 += 20;
     /*Column addresses*/
     st7789_send_cmd(ST7789_CASET);
     data[0] = (offsetx1 >> 8) & 0xFF;
