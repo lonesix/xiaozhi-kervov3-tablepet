@@ -240,6 +240,7 @@ uint8_t out_play_state = FACE_STATIC;
 uint8_t in_play_state = CIRCLE_IN;
 uint8_t static_play_state = 1;
 
+uint8_t biaoqing_start_flag = 0;
 uint8_t need_change = 1;
 char file_in_name[128] = {0};
 char file_run_name[128] = {0};
@@ -253,6 +254,7 @@ uint16_t Get_Set_Random(uint8_t set)
 }
 void play_change(uint8_t state)
 {
+    biaoqing_start_flag = 1;
     need_change = 1;
     new_out_play_state = state;
     in_play_state = CIRCLE_OUT;
@@ -290,9 +292,9 @@ void IN_play(char *file, uint8_t state)
             memset(file_in_name, 0, sizeof(file_in_name));
             memset(file_run_name, 0, sizeof(file_run_name));
             memset(file_out_name, 0, sizeof(file_out_name));
-            memcpy(file_in_name, "/sdcard/left/left_1.avi", strlen("/sdcard/left/left_1.avi"));
-            memcpy(file_run_name, "/sdcard/left/left_2.avi", strlen("/sdcard/left/left_2.avi"));
-            memcpy(file_out_name, "/sdcard/left/left_3.avi", strlen("/sdcard/left/left_3.avi"));
+            memcpy(file_in_name, "/sdcard/Emoji1/static/static1.avi", strlen("/sdcard/Emoji1/static/static1.avi"));
+            memcpy(file_run_name, "/sdcard/Emoji1/static/static1.avi", strlen("/sdcard/Emoji1/static/static1.avi"));
+            memcpy(file_out_name, "/sdcard/Emoji1/static/static2.avi", strlen("/sdcard/Emoji1/static/static2.avi"));
             break;
 
         default:
@@ -377,7 +379,7 @@ void IN_play(char *file, uint8_t state)
             printf("random delay_time :%d\n", delay_time);
             vTaskDelay(delay_time * 1000);
             static_play_state = Get_Set_Random(4);
-            static_play_state = 1;
+            // static_play_state = 1;
             printf("static_play_state face :%d\n", static_play_state);
             if (static_play_state != 1)
             {
@@ -417,10 +419,11 @@ void Avi_Player_Task(void *arg)
         ESP_LOGE(TAG, "malloc for rgb888 failed");
     }
     //             IN_play("/sdcard/badapple.avi", FACE_STATIC);
-    while (1)
+    while (!biaoqing_start_flag)
     {
-        vTaskDelay(0xffffff);
+        vTaskDelay(1000/portTICK_PERIOD_MS);
     }
+    
     while (1)
     {
         ESP_LOGE(TAG, "out_play_state :%d in_play_state:%d", out_play_state, in_play_state);

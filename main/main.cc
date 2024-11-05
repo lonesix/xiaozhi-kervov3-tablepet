@@ -31,7 +31,7 @@
 
 #include "avi_player.h"
 #include "file_manager.h"
-
+#include "esp_io_expander_tca9554.h"
 #define GPIO_INPUT_PIN GPIO_NUM_0
 
 
@@ -46,6 +46,12 @@
 
 #define SET_GPIO_HIGH(pin) gpio_set_level(pin, 1)
 #define SET_GPIO_LOW(pin) gpio_set_level(pin, 0)
+
+#define BSP_IO_EXPANDER_I2C_ADDRESS_TCA9554A (ESP_IO_EXPANDER_I2C_TCA9554A_ADDRESS_000)
+#define BSP_IO_EXPANDER_I2C_ADDRESS_TCA9554 (ESP_IO_EXPANDER_I2C_TCA9554_ADDRESS_000)
+
+#define I2C_SCL_IO (GPIO_NUM_18)
+#define I2C_SDA_IO (GPIO_NUM_17)
 
 esp_err_t tfcard_ret = ESP_FAIL;
 static void lv_tick_task(void *arg)
@@ -179,13 +185,13 @@ static void gui_task(void *arg)
 {
     xGuiSemaphore = xSemaphoreCreateMutex();
     lv_init(); // lvgl内核初始化
-    SET_GPIO_LOW(LCD_RST_GPIO);
+    // SET_GPIO_LOW(LCD_RST_GPIO);
 
 	// tca9554_set_output_state(LCD_RST_GPIO, TCA9554_IO_LOW);
-	vTaskDelay(20 / portTICK_PERIOD_MS);
-    SET_GPIO_HIGH(LCD_RST_GPIO);
-	// tca9554_set_output_state(LCD_RST_GPIO, TCA9554_IO_HIGH);
-	vTaskDelay(200 / portTICK_PERIOD_MS);
+	// vTaskDelay(20 / portTICK_PERIOD_MS);
+    // // SET_GPIO_HIGH(LCD_RST_GPIO);
+	// // tca9554_set_output_state(LCD_RST_GPIO, TCA9554_IO_HIGH);
+	// vTaskDelay(200 / portTICK_PERIOD_MS);
     lvgl_driver_init(); // lvgl显示接口初始化
 
     /* Example for 1) */
@@ -226,7 +232,7 @@ static void gui_task(void *arg)
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 10 * 1000));
 
-    
+    lv_main_page();
     if (tfcard_ret == ESP_OK)
     {avi_player_load();}
     #ifdef ADC_CHARGE_TEST
@@ -275,39 +281,121 @@ extern "C" void app_main(void)
     // Initialize NVS flash for WiFi configuration
 
 
-gpio_config_t gpio_conf;
-    gpio_conf.intr_type = GPIO_INTR_DISABLE;
-    gpio_conf.mode = GPIO_MODE_OUTPUT;
-    gpio_conf.pin_bit_mask = (1ULL << LCD_CTRL_GPIO) | (1ULL << LCD_RST_GPIO) \
-            | (1ULL << LCD_CS_GPIO);
-    gpio_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    gpio_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+// gpio_config_t gpio_conf;
+//     gpio_conf.intr_type = GPIO_INTR_DISABLE;
+//     gpio_conf.mode = GPIO_MODE_OUTPUT;
+/*     gpio_conf.pin_bit_mask = (1ULL << LCD_CTRL_GPIO) | (1ULL << LCD_RST_GPIO) \
+            | (1ULL << LCD_CS_GPIO);*/
+//     gpio_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+//     gpio_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     
-    gpio_config(&gpio_conf);
+//     gpio_config(&gpio_conf);
 
 
 
 
-        // 设置输出模式
-    gpio_set_direction(LCD_CTRL_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LCD_RST_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LCD_CS_GPIO, GPIO_MODE_OUTPUT);
-	// 控制引脚电平
-    SET_GPIO_HIGH(LCD_CTRL_GPIO);
-    SET_GPIO_LOW(LCD_RST_GPIO);
+//         // 设置输出模式
+//     gpio_set_direction(LCD_CTRL_GPIO, GPIO_MODE_OUTPUT);
+//     gpio_set_direction(LCD_RST_GPIO, GPIO_MODE_OUTPUT);
+//     gpio_set_direction(LCD_CS_GPIO, GPIO_MODE_OUTPUT);
+// 	// 控制引脚电平
+//     SET_GPIO_HIGH(LCD_CTRL_GPIO);
+//     SET_GPIO_LOW(LCD_RST_GPIO);
 
-    vTaskDelay(200 / portTICK_PERIOD_MS);
-    SET_GPIO_HIGH(LCD_RST_GPIO);
-    vTaskDelay(200 / portTICK_PERIOD_MS);
+//     vTaskDelay(200 / portTICK_PERIOD_MS);
+//     SET_GPIO_HIGH(LCD_RST_GPIO);
+//     vTaskDelay(200 / portTICK_PERIOD_MS);
+/* Initialize I2C peripheral */
+    i2c_master_bus_handle_t i2c_handle = NULL;
+    const i2c_master_bus_config_t bus_config = {
+        .i2c_port = I2C_NUM_0,
+        .sda_io_num = I2C_SDA_IO,
+        .scl_io_num = I2C_SCL_IO,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+    };
+    i2c_new_master_bus(&bus_config, &i2c_handle);
 
+    // const i2c_config_t es_i2c_cfg = {
+    //     .mode = I2C_MODE_MASTER,
+    //     .sda_io_num = I2C_SDA_IO,
+    //     .scl_io_num = I2C_SCL_IO,
+    //     .sda_pullup_en = GPIO_PULLUP_ENABLE,
+    //     .scl_pullup_en = GPIO_PULLUP_ENABLE,
+    //     .master = {
+    //         .clk_speed = 400000,
+    //     }};
+    // (i2c_param_config(I2C_NUM_0, &es_i2c_cfg));
+    // (i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0));
+    // ESP_IO_EXPANDER_I2C_TCA9554_ADDRESS_000
+    static esp_io_expander_handle_t io_expander = NULL; // IO expander tca9554 handle
+    if ((esp_io_expander_new_i2c_tca9554(i2c_handle, BSP_IO_EXPANDER_I2C_ADDRESS_TCA9554, &io_expander) != ESP_OK) &&
+        (esp_io_expander_new_i2c_tca9554(i2c_handle, BSP_IO_EXPANDER_I2C_ADDRESS_TCA9554A, &io_expander) != ESP_OK))
+    {
+        ESP_LOGE(TAG, "Failed to initialize IO expander");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Initialize IO expander OK");
+
+        (esp_io_expander_set_dir(io_expander, IO_EXPANDER_PIN_NUM_2, IO_EXPANDER_OUTPUT));
+        (esp_io_expander_set_level(io_expander, IO_EXPANDER_PIN_NUM_2, false));
+        vTaskDelay(200);
+        (esp_io_expander_set_level(io_expander, IO_EXPANDER_PIN_NUM_2, true));
+    }
+    i2c_del_master_bus(i2c_handle);
 // static const char *TAG = "LVGL_TEST";
 tfcard_ret = fm_sdcard_init();
 xTaskCreatePinnedToCore(&gui_task, "gui task", 1024 * 5, NULL, 5, NULL, 0);
 vTaskDelay(1000);
+// vTaskDelay(2000/ portTICK_PERIOD_MS);
     #endif
     // Otherwise, launch the application
     Application::GetInstance().Start();
+//     tfcard_ret = fm_sdcard_init();
+// vTaskDelay(1000);
+// xTaskCreatePinnedToCore(&gui_task, "gui task", 1024 * 5, NULL, 5, NULL, 0);
+//     xTaskCreatePinnedToCore(&gui_task, "gui task", 1024 * 5, NULL, 5, NULL, 0);
+    #ifdef QJG_KEVIN_WIFI
+if (tfcard_ret == ESP_OK)
+    {
+        while (1)
+        {
+            // biaoqing = FACE_NULL;
+            switch (biaoqing)
+            {
+            case 0:
+                play_change(FACE_STATIC);
+                break;
 
+            case 1:
+                play_change(FACE_HAPPY);
+
+                break;
+            case 2:
+                play_change(FACE_ANGRY);
+
+                break;
+            case 3:
+                play_change(FACE_BAD);
+
+                break;
+            case 4:
+                play_change(FACE_FEAR);
+
+                break;
+            case 5:
+                play_change(FACE_NOGOOD);
+
+                break;
+            default:
+                play_change(FACE_NULL);
+                break;
+            }
+            biaoqing = 0;
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
+    }
+    #endif
     // Dump CPU usage every 10 second
     while (true) {
         vTaskDelay(10000 / portTICK_PERIOD_MS);

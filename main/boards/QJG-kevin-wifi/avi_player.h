@@ -38,6 +38,7 @@ extern "C"
         FACE_BAD,
         FACE_FEAR,
         FACE_NOGOOD,
+        FACE_NULL
     };
     enum
     {
@@ -59,6 +60,7 @@ extern "C"
     extern uint8_t out_play_state;
     extern uint8_t in_play_state;
     extern uint8_t need_change;
+    extern uint8_t biaoqing_start_flag;
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

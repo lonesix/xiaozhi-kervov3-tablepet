@@ -47,6 +47,7 @@ elseif(CONFIG_BOARD_TYPE_KEVIN_BOX_0)
     list(APPEND SOURCES ${BOARD_SOURCES_C})
     list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD_TYPE})
     list(APPEND SOURCES "BoxAudioDevice.cc")    
+    list(APPEND SOURCES "KevinAudioDevice.cc")  
 endif()
 
 

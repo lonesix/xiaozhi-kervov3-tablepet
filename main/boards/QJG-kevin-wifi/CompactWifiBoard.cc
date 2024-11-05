@@ -1,5 +1,6 @@
 #include "WifiBoard.h"
 #include "BoxAudioDevice.h"
+#include "KevinAudioDevice.h"
 #include <esp_log.h>
 
 #define TAG "CompactWifiBoard"
@@ -13,6 +14,7 @@ public:
 
     virtual AudioDevice* CreateAudioDevice() override {
         return new BoxAudioDevice();
+        // return new KevinAudioDevice();
     }
 };
 

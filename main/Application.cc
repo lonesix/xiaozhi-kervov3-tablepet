@@ -12,6 +12,7 @@
 
 #include "Application.h"
 
+#include "lv_gui.h"
 #define TAG "Application"
 
 
@@ -283,11 +284,11 @@ void Application::Start() {
     }, "main_loop", 4096 * 2, this, 5, NULL);
 
     // Launch a task to check for new firmware version
-    xTaskCreate([](void* arg) {
-        Application* app = (Application*)arg;
-        app->CheckNewVersion();
-        vTaskDelete(NULL);
-    }, "check_new_version", 4096 * 2, this, 1, NULL);
+    // xTaskCreate([](void* arg) {
+    //     Application* app = (Application*)arg;
+    //     app->CheckNewVersion();
+    //     vTaskDelete(NULL);
+    // }, "check_new_version", 4096 * 2, this, 1, NULL);
 
     chat_state_ = kChatStateIdle;
     display_.UpdateDisplay();
@@ -314,7 +315,7 @@ void Application::MainLoop() {
         task();
     }
 }
-
+#include "avi_player.h"
 void Application::SetChatState(ChatState state) {
     const char* state_str[] = {
         "unknown",
@@ -334,6 +335,7 @@ void Application::SetChatState(ChatState state) {
     switch (chat_state_) {
         case kChatStateUnknown:
         case kChatStateIdle:
+        play_change(FACE_STATIC);
             builtin_led.TurnOff();
             break;
         case kChatStateConnecting:
@@ -347,6 +349,7 @@ void Application::SetChatState(ChatState state) {
         case kChatStateSpeaking:
             builtin_led.SetGreen();
             builtin_led.TurnOn();
+            play_change(FACE_HAPPY);
             break;
         case kChatStateWakeWordDetected:
             builtin_led.SetBlue();

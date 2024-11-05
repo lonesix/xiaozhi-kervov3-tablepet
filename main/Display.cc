@@ -2,7 +2,7 @@
 #include <esp_err.h>
 #include <esp_lcd_panel_ops.h>
 #include <esp_lcd_panel_vendor.h>
-#include <esp_lvgl_port.h>
+// #include <esp_lvgl_port.h>
 #include <string>
 #include <cstdlib>
 
@@ -167,13 +167,15 @@ Display::~Display() {
     //     i2c_master_bus_reset(i2c_bus_);
     // }
 }
-
+#include "lv_gui.h"
 void Display::SetText(const std::string &text) {
+    
     // if (label_ != nullptr) {
     //     text_ = text;
     //     lvgl_port_lock(0);
     //     // Change the text of the label
     //     lv_label_set_text(label_, text_.c_str());
+    label_ask_set_text((char *)text_.c_str());
     //     lvgl_port_unlock();
     // }
 }
